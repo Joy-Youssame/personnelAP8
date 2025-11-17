@@ -1,6 +1,7 @@
 package personnel;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -109,17 +110,30 @@ public class Ligue implements Serializable, Comparable<Ligue>
 	 */
 
 	public Employe addEmploye(String nom, String prenom, String mail, String password)
-	{
-		Employe employe = new Employe(this.gestionPersonnel, this, nom, prenom, mail, password);
-		employes.add(employe);
-		return employe;
-	}
-	
-	void remove(Employe employe)
-	{
-		employes.remove(employe);
-	}
-	
+    	{
+    		return addEmploye(nom, prenom, mail, password, LocalDate.now(), null);
+    	}
+
+    	// Nouvelle méthode addEmploye avec dates
+    	public Employe addEmploye(String nom, String prenom, String mail, String password, LocalDate dateArrivee, LocalDate dateDepart)
+    	{
+    		Employe employe = new Employe(this.gestionPersonnel, this, nom, prenom, mail, password, dateArrivee, dateDepart);
+    		employes.add(employe);
+    		return employe;
+    	}
+
+	   public SortedSet<Employe> getEmployesActifs()
+       	{
+       		SortedSet<Employe> employesActifs = new TreeSet<>();
+       		for (Employe employe : employes) {
+       			if (employe.estActif()) {
+       				employesActifs.add(employe);
+       			}
+       		}
+       		return Collections.unmodifiableSortedSet(employesActifs);
+       	}
+       }
+
 	/**
 	 * Supprime la ligue, entraîne la suppression de tous les employés
 	 * de la ligue.

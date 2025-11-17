@@ -21,18 +21,58 @@ public class Employe implements Serializable, Comparable<Employe>
 	private LocalDate dateArrivee;
 	private LocalDate dateDepart;
 
-	//Joy a modifier le construteur
 	Employe(GestionPersonnel gestionPersonnel, Ligue ligue, String nom, String prenom, String mail, String password)
-	{
-		this.gestionPersonnel = gestionPersonnel;
-		this.nom = nom;
-		this.prenom = prenom;
-		this.password = password;
-		this.mail = mail;
-		this.ligue = ligue;
-		setDateArrivee(dateArrivee)
-	}
-	
+    	{
+    		this(gestionPersonnel, ligue, nom, prenom, mail, password, LocalDate.now(), null);
+    	}
+
+    	// Nouveau constructeur avec dates
+    	Employe(GestionPersonnel gestionPersonnel, Ligue ligue, String nom, String prenom, String mail, String password, LocalDate dateArrivee, LocalDate dateDepart)
+    	{
+    		this.gestionPersonnel = gestionPersonnel;
+    		this.nom = nom;
+    		this.prenom = prenom;
+    		this.password = password;
+    		this.mail = mail;
+    		this.ligue = ligue;
+    		setDateArrivee(dateArrivee);
+    		setDateDepart(dateDepart);
+    	}
+
+	//Getters et Setters pour les dates
+	public LocalDate getDateArrivee()
+    	{
+    		return dateArrivee;
+    	}
+
+    	public void setDateArrivee(LocalDate dateArrivee)
+    	{
+    		if (dateArrivee == null) {
+    			throw new IllegalArgumentException("La date d'arrivée ne peut pas être nulle");
+    		}
+    		if (dateDepart != null && dateArrivee.isAfter(dateDepart)) {
+    			throw new IllegalArgumentException("La date d'arrivée ne peut pas être après la date de départ");
+    		}
+    		this.dateArrivee = dateArrivee;
+    	}
+
+    	public LocalDate getDateDepart()
+    	{
+    		return dateDepart;
+    	}
+
+    	public void setDateDepart(LocalDate dateDepart)
+    	{
+    		if (dateDepart != null) {
+    			if (dateDepart.isBefore(dateArrivee)) {
+    				throw new IllegalArgumentException("La date de départ ne peut pas être avant la date d'arrivée");
+    			}
+    			if (dateDepart.isAfter(LocalDate.now())) {
+    				throw new IllegalArgumentException("La date de départ ne peut pas être dans le futur");
+    			}
+    		}
+    		this.dateDepart = dateDepart;
+    	}
 	/**
 	 * Retourne vrai ssi l'employé est administrateur de la ligue 
 	 * passée en paramètre.
@@ -41,7 +81,11 @@ public class Employe implements Serializable, Comparable<Employe>
 	 * @param ligue la ligue pour laquelle on souhaite vérifier si this 
 	 * est l'admininstrateur.
 	 */
-	
+	public booleen estActif() //checks if the employee is active *new thing added*
+	{
+	        return dateDepart == null || dateDepart.isAfter(LocalDate.now());
+	}
+
 	public boolean estAdmin(Ligue ligue)
 	{
 		return ligue.getAdministrateur() == this;
@@ -179,12 +223,15 @@ public class Employe implements Serializable, Comparable<Employe>
 	
 	@Override
 	public String toString()
-	{
-		String res = nom + " " + prenom + " " + mail + " (";
-		if (estRoot())
-			res += "super-utilisateur";
-		else
-			res += ligue.toString();
-		return res + ")";
-	}
-}
+    	{
+    		String res = nom + " " + prenom + " " + mail + " (Arrivée: " + dateArrivee;
+    		if (dateDepart != null) {
+    			res += ", Départ: " + dateDepart;
+    		}
+    		if (estRoot())
+    			res += ", super-utilisateur";
+    		else
+    			res += ", " + ligue.toString();
+    		return res + ")";
+    	}
+    }

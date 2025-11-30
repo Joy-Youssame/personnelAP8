@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import commandLineMenus.List;
 import commandLineMenus.Menu;
 import commandLineMenus.Option;
-
+import java.time.LocalDate;
 import personnel.*;
 
 public class LigueConsole 
@@ -99,7 +99,7 @@ public class LigueConsole
 				{
 					ligue.addEmploye(getString("nom : "), 
 						getString("prenom : "), getString("mail : "), 
-						getString("password : "));
+						getString("password : "), LocalDate.now(), null );
 				}
 		);
 	}

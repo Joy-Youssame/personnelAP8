@@ -65,7 +65,11 @@ public class PersonnelConsole
 	
 	private boolean verifiePassword()
 	{
+		 String password = gestionPersonnel.getRoot().getPassword();
+		 System.out.println(password);
+		
 		boolean ok = gestionPersonnel.getRoot().checkPassword(getString("password : "));
+		
 		if (!ok)
 			System.out.println("Password incorrect.");
 		return ok;

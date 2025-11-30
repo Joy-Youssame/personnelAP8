@@ -2,6 +2,7 @@ package personnel;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.Period;
 
 /**
  * Employé d'une ligue hébergée par la M2L. Certains peuvent 
@@ -17,62 +18,44 @@ public class Employe implements Serializable, Comparable<Employe>
 	private String nom, prenom, password, mail;
 	private Ligue ligue;
 	private GestionPersonnel gestionPersonnel;
-	//Joy a rajouter les dates
-	private LocalDate dateArrivee;
-	private LocalDate dateDepart;
-
+	private LocalDate dateEmbauche;
+	private LocalDate dateFinContrat;
+	
 	Employe(GestionPersonnel gestionPersonnel, Ligue ligue, String nom, String prenom, String mail, String password)
-    	{
-    		this(gestionPersonnel, ligue, nom, prenom, mail, password, LocalDate.now(), null);
-    	}
-
-    	// Nouveau constructeur avec dates
-    	Employe(GestionPersonnel gestionPersonnel, Ligue ligue, String nom, String prenom, String mail, String password, LocalDate dateArrivee, LocalDate dateDepart)
-    	{
-    		this.gestionPersonnel = gestionPersonnel;
-    		this.nom = nom;
-    		this.prenom = prenom;
-    		this.password = password;
-    		this.mail = mail;
-    		this.ligue = ligue;
-    		setDateArrivee(dateArrivee);
-    		setDateDepart(dateDepart);
-    	}
-
-	//Getters et Setters pour les dates
-	public LocalDate getDateArrivee()
-    	{
-    		return dateArrivee;
-    	}
-
-    	public void setDateArrivee(LocalDate dateArrivee)
-    	{
-    		if (dateArrivee == null) {
-    			throw new IllegalArgumentException("La date d'arrivée ne peut pas être nulle");
-    		}
-    		if (dateDepart != null && dateArrivee.isAfter(dateDepart)) {
-    			throw new IllegalArgumentException("La date d'arrivée ne peut pas être après la date de départ");
-    		}
-    		this.dateArrivee = dateArrivee;
-    	}
-
-    	public LocalDate getDateDepart()
-    	{
-    		return dateDepart;
-    	}
-
-    	public void setDateDepart(LocalDate dateDepart)
-    	{
-    		if (dateDepart != null) {
-    			if (dateDepart.isBefore(dateArrivee)) {
-    				throw new IllegalArgumentException("La date de départ ne peut pas être avant la date d'arrivée");
-    			}
-    			if (dateDepart.isAfter(LocalDate.now())) {
-    				throw new IllegalArgumentException("La date de départ ne peut pas être dans le futur");
-    			}
-    		}
-    		this.dateDepart = dateDepart;
-    	}
+	{
+		this(gestionPersonnel, ligue, nom, prenom, mail, password, LocalDate.now(), null);
+	}
+	
+	Employe(GestionPersonnel gestionPersonnel, Ligue ligue, String nom, String prenom, String mail, String password, 
+			LocalDate dateEmbauche, LocalDate dateFinContrat)
+	{
+		this.gestionPersonnel = gestionPersonnel;
+		this.nom = nom;
+		this.prenom = prenom;
+		this.password = password;
+		this.mail = mail;
+		this.ligue = ligue;
+		setDateEmbauche(dateEmbauche);
+		setDateFinContrat(dateFinContrat);
+		validerDatesContrat();
+	}
+	
+	/**
+	 * Valide la cohérence des dates de contrat
+	 * @throws IllegalArgumentException si les dates sont incohérentes
+	 */
+	private void validerDatesContrat()
+	{
+		if (dateEmbauche != null && dateFinContrat != null && dateFinContrat.isBefore(dateEmbauche))
+		{
+			throw new IllegalArgumentException("La date de fin de contrat ne peut pas être avant la date d'embauche");
+		}
+		
+		if (dateEmbauche != null && dateEmbauche.isAfter(LocalDate.now().plusDays(1)))
+		{
+			throw new IllegalArgumentException("La date d'embauche ne peut pas être dans le futur");
+		}
+	}
 	/**
 	 * Retourne vrai ssi l'employé est administrateur de la ligue 
 	 * passée en paramètre.
@@ -81,11 +64,7 @@ public class Employe implements Serializable, Comparable<Employe>
 	 * @param ligue la ligue pour laquelle on souhaite vérifier si this 
 	 * est l'admininstrateur.
 	 */
-	public booleen estActif() //checks if the employee is active *new thing added*
-	{
-	        return dateDepart == null || dateDepart.isAfter(LocalDate.now());
-	}
-
+	
 	public boolean estAdmin(Ligue ligue)
 	{
 		return ligue.getAdministrateur() == this;
@@ -184,16 +163,59 @@ public class Employe implements Serializable, Comparable<Employe>
 		this.password= password;
 	}
 
-	/**
-	 * Retourne la ligue à laquelle l'employé est affecté.
-	 * @return la ligue à laquelle l'employé est affecté.
-	 */
+	
 	
 	public Ligue getLigue()
 	{
 		return ligue;
 	}
 
+	
+	
+	public LocalDate getDateEmbauche()
+	{
+		return dateEmbauche;
+	}
+	
+	
+	public void setDateEmbauche(LocalDate dateEmbauche)
+	{
+		if (dateEmbauche != null && dateEmbauche.isAfter(LocalDate.now().plusDays(1)))
+		{
+			throw new IllegalArgumentException("La date d'embauche ne peut pas être dans le futur");
+		}
+		this.dateEmbauche = dateEmbauche;
+		validerDatesContrat();
+	}
+	
+	
+	public LocalDate getDateFinContrat()
+	{
+		return dateFinContrat;
+	}
+	
+	
+	public void setDateFinContrat(LocalDate dateFinContrat)
+	{
+		this.dateFinContrat = dateFinContrat;
+		validerDatesContrat();
+	}
+	
+	
+	public int getAnciennete()
+	{
+		if (dateEmbauche == null)
+			return 0;
+		
+		return Period.between(dateEmbauche, LocalDate.now()).getYears();
+	}
+	
+	
+	public boolean estContratTermine()
+	{
+		return dateFinContrat != null && dateFinContrat.isBefore(LocalDate.now());
+	}
+	
 	/**
 	 * Supprime l'employé. Si celui-ci est un administrateur, le root
 	 * récupère les droits d'administration sur sa ligue.
@@ -223,15 +245,16 @@ public class Employe implements Serializable, Comparable<Employe>
 	
 	@Override
 	public String toString()
-    	{
-    		String res = nom + " " + prenom + " " + mail + " (Arrivée: " + dateArrivee;
-    		if (dateDepart != null) {
-    			res += ", Départ: " + dateDepart;
-    		}
-    		if (estRoot())
-    			res += ", super-utilisateur";
-    		else
-    			res += ", " + ligue.toString();
-    		return res + ")";
-    	}
-    }
+	{
+		String res = nom + " " + prenom + " " + mail + " (";
+		if (estRoot())
+			res += "super-utilisateur";
+		else
+			res += ligue.toString();
+		return res + ")";
+	}
+
+	public String getPassword() {
+		return this.password;
+	}
+}

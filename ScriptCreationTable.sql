@@ -3,28 +3,32 @@ DROP TABLE LIGUE IF EXISTS;
 
 CREATE TABLE EMPLOYE
 (
-NumEmployé INT AUTO_INCREMENT NOT NULL,
-PrenomEmployé VARCHAR(25),
-NomEmployé VARCHAR(25),
-MDPEmployé VARCHAR(25),
-Rôle VARCHAR(25),
-EmailEmployé VARCHAR(25),
-DateArrivée DATE,
-DateDepart DATE,
-Login VARCHAR(25),
-CONSTRAINT PK_EMPLOYE PRIMARY KEY (NumEmployé)
+    NumEmployé INT AUTO_INCREMENT NOT NULL,
+    PrenomEmployé VARCHAR(25),
+    NomEmployé VARCHAR(25),
+    MDPEmployé VARCHAR(25),
+    Rôle VARCHAR(25),
+    EmailEmployé VARCHAR(25),
+    DateArrivée DATE,
+    DateDepart DATE,
+    Login VARCHAR(25),
+    CONSTRAINT PK_EMPLOYE PRIMARY KEY (NumEmployé),
+    CONSTRAINT UK_EMPLOYE_EMAIL UNIQUE(EmailEmployé)
+
 )
-engine=innodb;
+    engine=innodb;
 
 desc EMPLOYE;
 
 CREATE TABLE LIGUE
 (
-NumLigue INT AUTO_INCREMENT NOT NULL,
-NomLigue VARCHAR(25),
-CONSTRAINT PK_LIGUE PRIMARY KEY (NumLigue),
-CONSTRAINT FK_EMPLOYE_LIGUE FOREIGN KEY (NumLigue) REFERENCES LIGUE(NumLigue)
+    NumLigue INT AUTO_INCREMENT NOT NULL,
+    NomLigue VARCHAR(25),
+    NumEmployé INT,
+    CONSTRAINT PK_LIGUE PRIMARY KEY (NumLigue),
+    CONSTRAINT FK_EMPLOYE FOREIGN KEY(NumEmployé)REFERENCES EMPLOYE(NumEmployé)ON DELETE SET NULL,
+    CONSTRAINT UK_LIGUE_NOM UNIQUE(NomLigue)
 )
-engine=innodb;
+    engine=innodb;
 
 desc LIGUE;

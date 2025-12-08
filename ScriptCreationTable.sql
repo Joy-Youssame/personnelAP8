@@ -12,10 +12,7 @@ EmailEmployé VARCHAR(25),
 DateArrivée DATE,
 DateDepart DATE,
 Login VARCHAR(25),
-NumLigue INT,
 CONSTRAINT PK_EMPLOYE PRIMARY KEY (NumEmployé)
-UNIQUE(EmailEmployé),
-FOREIGN KEY(NumLigue)REFERENCES LIGUE(NumLigue)
 )
 engine=innodb;
 
@@ -27,7 +24,6 @@ NumLigue INT AUTO_INCREMENT NOT NULL,
 NomLigue VARCHAR(25),
 CONSTRAINT PK_LIGUE PRIMARY KEY (NumLigue),
 CONSTRAINT FK_EMPLOYE_LIGUE FOREIGN KEY (NumLigue) REFERENCES LIGUE(NumLigue)
-UNIQUE(NomLigue)
 )
 engine=innodb;
 

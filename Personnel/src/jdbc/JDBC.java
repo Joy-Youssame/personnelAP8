@@ -39,7 +39,7 @@ public class JDBC implements Passerelle
 	}
 
 	@Override
-	public GestionPersonnel getGestionPersonnel()
+	public GestionPersonnel getGestionPersonnel() 
 	{
 		GestionPersonnel gestionPersonnel = new GestionPersonnel();
 		String requete = "select * from ligue";
@@ -54,16 +54,15 @@ public class JDBC implements Passerelle
 		{
 			System.out.println(e);
 		}
-
 		return gestionPersonnel;
 	}
 
 	@Override
-	public void sauvegarderGestionPersonnel(GestionPersonnel gestionPersonnel) throws SauvegardeImpossible
+	public void sauvegarderGestionPersonnel(GestionPersonnel gestionPersonnel) throws SauvegardeImpossible 
 	{
 		close();
 	}
-
+	
 	public void close() throws SauvegardeImpossible
 	{
 		try
@@ -148,6 +147,23 @@ public class JDBC implements Passerelle
 		catch (SQLException e)
 		{
 			throw new SauvegardeImpossible(e);
+		}
+	}
+
+	@Override
+	public void update(Ligue ligue) throws SauvegardeImpossible
+	{
+		String requete = "update ligue set nom = ? where id = ?";
+
+		try (PreparedStatement instruction = connection.prepareStatement(requete))
+		{
+			instruction.setString(1, ligue.getNom());
+			instruction.setInt(2, ligue.getId());
+			instruction.executeUpdate();
+		}
+		catch (SQLException exception)
+		{
+			throw new SauvegardeImpossible(exception);
 		}
 	}
 

@@ -31,7 +31,7 @@ public class Ligue implements Serializable, Comparable<Ligue>
 	Ligue(GestionPersonnel gestionPersonnel, String nom) throws SauvegardeImpossible
 	{
 		this(gestionPersonnel, -1, nom);
-		this.id = gestionPersonnel.insert(this); 
+		this.id = gestionPersonnel.insert(this);
 	}
 
 	Ligue(GestionPersonnel gestionPersonnel, int id, String nom)
@@ -47,6 +47,11 @@ public class Ligue implements Serializable, Comparable<Ligue>
 	 * Retourne le nom de la ligue.
 	 * @return le nom de la ligue.
 	 */
+
+	public int getId()
+	{
+		return id;
+	}
 
 	public String getNom()
 	{
@@ -109,37 +114,31 @@ public class Ligue implements Serializable, Comparable<Ligue>
 	 * @return l'employé créé. 
 	 */
 
-	public Employe addEmploye(String nom, String prenom, String mail, String password)
-    	{
-    		return addEmploye(nom, prenom, mail, password, LocalDate.now(), null);
-    	}
+	public Employe addEmploye(String nom, String prenom, String mail, String password) throws SauvegardeImpossible
+	{
+		return addEmploye(nom, prenom, mail, password, LocalDate.now(), null);
+	}
 
-    	// Nouvelle méthode addEmploye avec dates
-    	public Employe addEmploye(String nom, String prenom, String mail, String password, LocalDate dateArrivee, LocalDate dateDepart)
-    	{
-    		Employe employe = new Employe(this.gestionPersonnel, this, nom, prenom, mail, password, dateArrivee, dateDepart);
-    		employes.add(employe);
-    		return employe;
-    	}
+	public Employe addEmploye(String nom, String prenom, String mail, String password,
+			LocalDate dateArrivee, LocalDate dateDepart) throws SauvegardeImpossible
+	{
+		Employe employe = new Employe(this.gestionPersonnel, this, nom, prenom, mail, password, dateArrivee, dateDepart);
+		employe.setId(gestionPersonnel.insert(employe));
+		employes.add(employe);
+		return employe;
+	}
 
-	   public SortedSet<Employe> getEmployesActifs()
-       	{
-       		SortedSet<Employe> employesActifs = new TreeSet<>();
-       		for (Employe employe : employes) {
-       			if (employe.estActif()) {
-       				employesActifs.add(employe);
-       			}
-       		}
-       		return Collections.unmodifiableSortedSet(employesActifs);
-       	}
-       }
-
+	void remove(Employe employe)
+	{
+		employes.remove(employe);
+	}
+	
 	/**
 	 * Supprime la ligue, entraîne la suppression de tous les employés
 	 * de la ligue.
 	 */
 	
-	public void remove()
+	public void remove() throws SauvegardeImpossible
 	{
 		gestionPersonnel.remove(this);
 	}
@@ -150,7 +149,7 @@ public class Ligue implements Serializable, Comparable<Ligue>
 	{
 		return getNom().compareTo(autre.getNom());
 	}
-	
+
 	@Override
 	public String toString()
 	{

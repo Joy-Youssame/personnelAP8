@@ -15,19 +15,14 @@ import java.time.Period;
 public class Employe implements Serializable, Comparable<Employe>
 {
 	private static final long serialVersionUID = 4795721718037994734L;
+	private int id = -1;
 	private String nom, prenom, password, mail;
 	private Ligue ligue;
 	private GestionPersonnel gestionPersonnel;
 	private LocalDate dateEmbauche;
 	private LocalDate dateFinContrat;
 	
-	Employe(GestionPersonnel gestionPersonnel, Ligue ligue, String nom, String prenom, String mail, String password)
-	{
-		this(gestionPersonnel, ligue, nom, prenom, mail, password, LocalDate.now(), null);
-	}
-	
-	Employe(GestionPersonnel gestionPersonnel, Ligue ligue, String nom, String prenom, String mail, String password, 
-			LocalDate dateEmbauche, LocalDate dateFinContrat)
+	Employe(GestionPersonnel gestionPersonnel, Ligue ligue, String nom, String prenom, String mail, String password, LocalDate dateEmbauche, LocalDate dateFinContrat)
 	{
 		this.gestionPersonnel = gestionPersonnel;
 		this.nom = nom;
@@ -41,22 +36,6 @@ public class Employe implements Serializable, Comparable<Employe>
 	}
 	
 	/**
-	 * Valide la cohérence des dates de contrat
-	 * @throws IllegalArgumentException si les dates sont incohérentes
-	 */
-	private void validerDatesContrat()
-	{
-		if (dateEmbauche != null && dateFinContrat != null && dateFinContrat.isBefore(dateEmbauche))
-		{
-			throw new IllegalArgumentException("La date de fin de contrat ne peut pas être avant la date d'embauche");
-		}
-		
-		if (dateEmbauche != null && dateEmbauche.isAfter(LocalDate.now().plusDays(1)))
-		{
-			throw new IllegalArgumentException("La date d'embauche ne peut pas être dans le futur");
-		}
-	}
-	/**
 	 * Retourne vrai ssi l'employé est administrateur de la ligue 
 	 * passée en paramètre.
 	 * @return vrai ssi l'employé est administrateur de la ligue 
@@ -64,6 +43,25 @@ public class Employe implements Serializable, Comparable<Employe>
 	 * @param ligue la ligue pour laquelle on souhaite vérifier si this 
 	 * est l'admininstrateur.
 	 */
+	
+	public int getId()
+	{
+		return id;
+	}
+
+	void setId(int id)
+	{
+		this.id = id;
+	}
+
+	private void validerDatesContrat()
+	{
+		if (dateEmbauche != null && dateFinContrat != null && dateFinContrat.isBefore(dateEmbauche))
+			throw new IllegalArgumentException("La date de fin de contrat ne peut pas être avant la date d'embauche");
+
+		if (dateEmbauche != null && dateEmbauche.isAfter(LocalDate.now().plusDays(1)))
+			throw new IllegalArgumentException("La date d'embauche ne peut pas être dans le futur");
+	}
 	
 	public boolean estAdmin(Ligue ligue)
 	{
@@ -163,75 +161,67 @@ public class Employe implements Serializable, Comparable<Employe>
 		this.password= password;
 	}
 
-	
+	/**
+	 * Retourne la ligue à laquelle l'employé est affecté.
+	 * @return la ligue à laquelle l'employé est affecté.
+	 */
 	
 	public Ligue getLigue()
 	{
 		return ligue;
 	}
 
-	
-	
-	public LocalDate getDateEmbauche()
-	{
-		return dateEmbauche;
-	}
-	
-	
-	public void setDateEmbauche(LocalDate dateEmbauche)
-	{
-		if (dateEmbauche != null && dateEmbauche.isAfter(LocalDate.now().plusDays(1)))
-		{
-			throw new IllegalArgumentException("La date d'embauche ne peut pas être dans le futur");
-		}
-		this.dateEmbauche = dateEmbauche;
-		validerDatesContrat();
-	}
-	
-	
-	public LocalDate getDateFinContrat()
-	{
-		return dateFinContrat;
-	}
-	
-	
-	public void setDateFinContrat(LocalDate dateFinContrat)
-	{
-		this.dateFinContrat = dateFinContrat;
-		validerDatesContrat();
-	}
-	
-	
-	public int getAnciennete()
-	{
-		if (dateEmbauche == null)
-			return 0;
-		
-		return Period.between(dateEmbauche, LocalDate.now()).getYears();
-	}
-	
-	
-	public boolean estContratTermine()
-	{
-		return dateFinContrat != null && dateFinContrat.isBefore(LocalDate.now());
-	}
-	
 	/**
 	 * Supprime l'employé. Si celui-ci est un administrateur, le root
 	 * récupère les droits d'administration sur sa ligue.
 	 */
 	
-	public void remove()
+	public LocalDate getDateEmbauche()
+	{
+		return dateEmbauche;
+	}
+
+	public void setDateEmbauche(LocalDate dateEmbauche)
+	{
+		if (dateEmbauche != null && dateEmbauche.isAfter(LocalDate.now().plusDays(1)))
+			throw new IllegalArgumentException("La date d'embauche ne peut pas être dans le futur");
+		this.dateEmbauche = dateEmbauche;
+		validerDatesContrat();
+	}
+
+	public LocalDate getDateFinContrat()
+	{
+		return dateFinContrat;
+	}
+
+	public void setDateFinContrat(LocalDate dateFinContrat)
+	{
+		this.dateFinContrat = dateFinContrat;
+		validerDatesContrat();
+	}
+
+	public int getAnciennete()
+	{
+		if (dateEmbauche == null)
+			return 0;
+		return Period.between(dateEmbauche, LocalDate.now()).getYears();
+	}
+
+	public boolean estContratTermine()
+	{
+		return dateFinContrat != null && dateFinContrat.isBefore(LocalDate.now());
+	}
+
+	public void remove() throws SauvegardeImpossible
 	{
 		Employe root = gestionPersonnel.getRoot();
-		if (this != root)
-		{
-			if (estAdmin(getLigue()))
-				getLigue().setAdministrateur(root);
-			getLigue().remove(this);
-		}
-		else
+		if (this == root)
 			throw new ImpossibleDeSupprimerRoot();
+
+		if (estAdmin(getLigue()))
+			getLigue().setAdministrateur(root);
+
+		gestionPersonnel.remove(this);
 	}
 
 	@Override
@@ -242,7 +232,7 @@ public class Employe implements Serializable, Comparable<Employe>
 			return cmp;
 		return getPrenom().compareTo(autre.getPrenom());
 	}
-	
+
 	@Override
 	public String toString()
 	{
@@ -254,7 +244,8 @@ public class Employe implements Serializable, Comparable<Employe>
 		return res + ")";
 	}
 
-	public String getPassword() {
+	public String getPassword()
+	{
 		return this.password;
 	}
 }

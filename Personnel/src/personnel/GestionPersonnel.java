@@ -22,8 +22,9 @@ public class GestionPersonnel implements Serializable
 	private SortedSet<Ligue> ligues;
 	private Employe root = new Employe(this, null, "root", "", "", "toor");
 	public final static int SERIALIZATION = 1, JDBC = 2, 
-			TYPE_PASSERELLE = SERIALIZATION;  
-	private static Passerelle passerelle = TYPE_PASSERELLE == JDBC ? new jdbc.JDBC() : new serialisation.Serialization();	
+			TYPE_PASSERELLE = JDBC;
+	private static Passerelle passerelle =
+			TYPE_PASSERELLE == JDBC ? new jdbc.JDBC() : new serialisation.Serialization();
 	
 	/**
 	 * Retourne l'unique instance de cette classe.
@@ -45,11 +46,11 @@ public class GestionPersonnel implements Serializable
 	public GestionPersonnel()
 	{
 		if (gestionPersonnel != null)
-			throw new RuntimeException("Vous ne pouvez créer qu'une seuls instance de cet objet.");
+			throw new RuntimeException("Vous ne pouvez créer qu'une seule instance de cet objet.");
 		ligues = new TreeSet<>();
 		gestionPersonnel = this;
 	}
-	
+
 	public void sauvegarder() throws SauvegardeImpossible
 	{
 		passerelle.sauvegarderGestionPersonnel(this);
@@ -66,8 +67,7 @@ public class GestionPersonnel implements Serializable
 	{
 		if (administrateur.estAdmin(administrateur.getLigue()))
 			return administrateur.getLigue();
-		else
-			return null;
+		return null;
 	}
 
 	/**
@@ -82,11 +82,11 @@ public class GestionPersonnel implements Serializable
 
 	public Ligue addLigue(String nom) throws SauvegardeImpossible
 	{
-		Ligue ligue = new Ligue(this, nom); 
+		Ligue ligue = new Ligue(this, nom);
 		ligues.add(ligue);
 		return ligue;
 	}
-	
+
 	public Ligue addLigue(int id, String nom)
 	{
 		Ligue ligue = new Ligue(this, id, nom);
@@ -94,16 +94,27 @@ public class GestionPersonnel implements Serializable
 		return ligue;
 	}
 
-	void remove(Ligue ligue)
+	void remove(Ligue ligue) throws SauvegardeImpossible
 	{
+		passerelle.delete(ligue);
 		ligues.remove(ligue);
 	}
-	
+
 	int insert(Ligue ligue) throws SauvegardeImpossible
 	{
 		return passerelle.insert(ligue);
 	}
 
+	int insert(Employe employe) throws SauvegardeImpossible
+	{
+		return passerelle.insert(employe);
+	}
+
+	void remove(Employe employe) throws SauvegardeImpossible
+	{
+		passerelle.delete(employe);
+		employe.getLigue().remove(employe);
+	}
 	/**
 	 * Retourne le root (super-utilisateur).
 	 * @return le root.

@@ -20,7 +20,7 @@ public class GestionPersonnel implements Serializable
 	private static final long serialVersionUID = -105283113987886425L;
 	private static GestionPersonnel gestionPersonnel = null;
 	private SortedSet<Ligue> ligues;
-	private Employe root = new Employe(this, null, "root", "", "", "toor");
+	private Employe root;
 	public final static int SERIALIZATION = 1, JDBC = 2, 
 			TYPE_PASSERELLE = JDBC;
 	private static Passerelle passerelle =
@@ -124,6 +124,11 @@ public class GestionPersonnel implements Serializable
 	 * Retourne le root (super-utilisateur).
 	 * @return le root.
 	 */
+	
+	public void addRoot(String nom, String motDePasse) throws SauvegardeImpossible
+	{
+	    root = new Employe(this, null, nom, "", "", motDePasse);
+	}
 	
 	public Employe getRoot()
 	{

@@ -110,6 +110,11 @@ public class GestionPersonnel implements Serializable
 	passerelle.update(ligue);
 }
 
+	void update(Employe employe) throws SauvegardeImpossible
+	{
+		passerelle.update(employe);
+	}
+	
 	int insert(Employe employe) throws SauvegardeImpossible
 	{
 		return passerelle.insert(employe);
@@ -125,9 +130,16 @@ public class GestionPersonnel implements Serializable
 	 * @return le root.
 	 */
 	
+	//cette partie c'est pour la creation du root par défaut
 	public void addRoot(String nom, String motDePasse) throws SauvegardeImpossible
 	{
 	    root = new Employe(this, null, nom, "", "", motDePasse);
+	}
+	
+	// Cette partie cest pour la lecture du root depuis la BDD
+	public void addRoot(int id, String nom, String prenom, String mail, String password)
+	{
+	    root = new Employe(this, id, null, nom, prenom, mail, password);
 	}
 	
 	public Employe getRoot()

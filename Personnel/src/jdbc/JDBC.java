@@ -39,22 +39,35 @@ public class JDBC implements Passerelle
 	}
 
 	@Override
-	public GestionPersonnel getGestionPersonnel() 
+	public GestionPersonnel getGestionPersonnel()
 	{
-		GestionPersonnel gestionPersonnel = new GestionPersonnel();
-		String requete = "select * from ligue";
+	    GestionPersonnel gp = new GestionPersonnel();
 
-		try (Statement instruction = connection.createStatement();
-			 ResultSet ligues = instruction.executeQuery(requete))
-		{
-			while (ligues.next())
-				gestionPersonnel.addLigue(ligues.getInt(1), ligues.getString(2));
-		}
-		catch (SQLException e)
-		{
-			System.out.println(e);
-		}
-		return gestionPersonnel;
+	    try
+	    {
+	        Connection cnx = getConnection();
+	        Statement st = cnx.createStatement();
+
+	        ResultSet rs = st.executeQuery("SELECT * FROM employe WHERE nom='root'");
+
+	        if(rs.next())
+	        {
+	            int id = rs.getInt("id");
+	            String nom = rs.getString("nom");
+	            String prenom = rs.getString("prenom");
+	            String mail = rs.getString("mail");
+	            String password = rs.getString("password");
+
+	            gp.addRoot(id, nom, prenom, mail, password);
+	        }
+
+	    }
+	    catch(Exception e)
+	    {
+	        e.printStackTrace();
+	    }
+
+	    return gp;
 	}
 
 	@Override
@@ -165,6 +178,30 @@ public class JDBC implements Passerelle
 		{
 			throw new SauvegardeImpossible(exception);
 		}
+	}
+	
+	public void update(Employe employe) throws SauvegardeImpossible
+	{
+	    try
+	    {
+	        Connection cnx = getConnection();
+
+	        PreparedStatement ps = cnx.prepareStatement(
+	            "UPDATE employe SET nom=?, prenom=?, mail=?, password=? WHERE id=?"
+	        );
+
+	        ps.setString(1, employe.getNom());
+	        ps.setString(2, employe.getPrenom());
+	        ps.setString(3, employe.getMail());
+	        ps.setString(4, employe.getPassword());
+	        ps.setInt(5, employe.getId());
+
+	        ps.executeUpdate();
+	    }
+	    catch (SQLException e)
+	    {
+	        throw new SauvegardeImpossible("Modification employé impossible", e);
+	    }
 	}
 
 	@Override

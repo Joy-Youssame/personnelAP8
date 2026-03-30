@@ -16,18 +16,19 @@ public class Employe implements Serializable, Comparable<Employe>
 {
 	private static final long serialVersionUID = 4795721718037994734L;
 	private int id;
-	private String nom, prenom, password, mail;
+	private String nom, prenom, password, mail, NumeroSecuriteSocial;
 	private Ligue ligue;
 	private GestionPersonnel gestionPersonnel;
 	private LocalDate dateEmbauche;
 	private LocalDate dateFinContrat;
 	
-	Employe(GestionPersonnel gestionPersonnel, Ligue ligue, String nom, String prenom, String mail, String password, LocalDate dateEmbauche, LocalDate dateFinContrat)
+	Employe(GestionPersonnel gestionPersonnel, Ligue ligue, String nom, String prenom, String mail, String password, String NumeroSecuriteSocial, LocalDate dateEmbauche, LocalDate dateFinContrat)
 	{
 		this.gestionPersonnel = gestionPersonnel;
 		this.nom = nom;
 		this.prenom = prenom;
 		this.password = password;
+		this.NumeroSecuriteSocial = NumeroSecuriteSocial;
 		this.mail = mail;
 		this.ligue = ligue;
 		this.id = gestion.insert(this);
@@ -160,6 +161,14 @@ public class Employe implements Serializable, Comparable<Employe>
 	public void setPassword(String password)
 	{
 		this.password= password;
+	}
+
+	public String getNumeroSecuriteSocial(){
+		return NumeroSecuriteSocial;
+	}
+
+	public String setNumeroSecuriteSocial(String NumeroSecuriteSocial){
+		this.NumeroSecuriteSocial = NumeroSecuriteSocial;
 	}
 
 	/**

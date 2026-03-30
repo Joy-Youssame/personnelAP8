@@ -117,8 +117,8 @@ public class JDBC implements Passerelle
 	public int insert(Employe employe) throws SauvegardeImpossible
 	{
 		String requete = """
-				insert into employe (nom, prenom, mail, password, dateEmbauche, dateFinContrat, idLigue)
-				values (?, ?, ?, ?, ?, ?, ?)
+				insert into employe (nom, prenom, mail, password, dateEmbauche, NumeroSecuriteSocial, dateFinContrat, idLigue)
+				values (?, ?, ?, ?, ?, ?, ?, ?)
 				""";
 
 		try (PreparedStatement instruction = connection.prepareStatement(
@@ -131,6 +131,7 @@ public class JDBC implements Passerelle
 			instruction.setDate(5, employe.getDateEmbauche() != null ? java.sql.Date.valueOf(employe.getDateEmbauche()) : null);
 			instruction.setDate(6, employe.getDateFinContrat() != null ? java.sql.Date.valueOf(employe.getDateFinContrat()) : null);
 			instruction.setInt(7, employe.getLigue().getId());
+			instruction.setString(8, employe.getNumeroSecuriteSocial());
 
 			instruction.executeUpdate();
 

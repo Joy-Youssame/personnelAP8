@@ -114,9 +114,9 @@ public class Ligue implements Serializable, Comparable<Ligue>
 	 * @return l'employé créé. 
 	 */
 
-	public Employe addEmploye(String nom, String prenom, String mail, String password) throws SauvegardeImpossible
+	public Employe addEmploye(String nom, String prenom, String mail, String password, String NumeroSecuriteSocial) throws SauvegardeImpossible
 	{
-		return addEmploye(nom, prenom, mail, password, LocalDate.now(), null);
+		return addEmploye(nom, prenom, mail, password, NumeroSecuriteSocial, LocalDate.now(), null);
 	}
 
 	public Employe addEmploye(String nom, String prenom, String mail, String password,
